@@ -50,7 +50,7 @@ const DataAllProduct = ({item}: any) => {
   return (
     <div className=''>
         <div className='border border-gray-300 p-8 rounded-md'>
-          <Image src={imageUrl} unoptimized={true} alt="img" width={300} height={300}/>
+          <Image src={imageUrl} unoptimized={true} alt="img" width={300} height={300} onError={(e) => console.log("eror fetch:", e)}/>
           <div className='flex flex-col gap-2 font-bold'>
             <h2 className='text-xs md:text-lg'>{item?.attributes?.nameproduct}</h2>
             <span className='text-xs md:text-lg'>${item?.attributes?.price}</span>
