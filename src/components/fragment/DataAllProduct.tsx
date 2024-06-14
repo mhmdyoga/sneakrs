@@ -49,7 +49,7 @@ const DataAllProduct = ({item}: any) => {
   return (
     <div className=''>
         <div className='border border-gray-300 p-8 rounded-md'>
-          <Image src={process.env.NEXT_PUBLIC_API_BASE_URL + item?.attributes?.image?.data[0].attributes?.url} unoptimized={true} alt="img" width={500} height={500}/>
+          <Image src={process.env.NEXT_PUBLIC_API_BASE_URL+item?.attributes?.image?.data[0].attributes?.url} unoptimized={true} alt="img" width={500} height={500}/>
           <div className='flex flex-col gap-2 font-bold'>
             <h2 className='text-xs md:text-lg'>{item?.attributes?.nameproduct}</h2>
             <span className='text-xs md:text-lg'>${item?.attributes?.price}</span>
