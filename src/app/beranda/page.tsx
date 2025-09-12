@@ -12,6 +12,7 @@ import {
 import { League_Gothic } from 'next/font/google';
 import { MotionDiv } from '@/components/motion/page';
 import CustomButton from '@/components/fragment/CustomButton';
+import { Button } from '@/components/ui/button';
 //   font goole
   const LeagueGhotic = League_Gothic({
     weight: ["400"],
@@ -133,18 +134,26 @@ const Beranda = () => {
           <MotionDiv initial="offScreen" whileInView="onScreen" viewport={{once: true, amount: 0.5}} variants={fromRightText} exit="exit" className="flex flex-col gap-2">
             <h2 className="font-extrabold text-4xl md:text-6xl text-center">MVP COLLECTION</h2>
             <p className="font-semibold text-center text-sm md:text-xl text-slate-400">Find out your style with our Sneakers Collection <br/> and your the best stylish ever see.</p>
-            <CustomButton title='Explore Now!!!' style='bg-black text-white font-bold md:ml-[600px] ml-[100px] p-2 rounded-full text-center flex jsutify-center items-center'/>
+            <CustomButton title='Explore Now!!!' onClick={() => window.location.href = "/shop"} style="bg-black text-white font-bold md:ml-[680px] ml-[100px] p-2 rounded-full text-center flex justify-center items-center"/>
           </MotionDiv>
         </div>
-        <div>
-            <MotionDiv initial="offScreen" whileInView="onScreen" viewport={{once: true, amount: 0.5}} variants={fromRightText} exit="exit" className='grid grid-cols-2 md:grid-cols-3 gap-12 mx-44 my-10'>
-                <Image alt="img" src="/img-1.png" width={500} height={500}/>
-                <Image alt="img" src="/img-2.png" width={500} height={500}/>
-                <Image alt="img" src="/img-3.png" width={500} height={500}/>
-            </MotionDiv>
+        <div className='my-6 flex flex-col items-center'>
+           <Image src="/5-sneakers-by-cities-of-indonesia.webp" alt='img' width={480} height={480} className='w-[1480px] h-auto'/>
+           <h2 className='font-bold flex justify-start items-start text-black text-4xl mt-8'>Sneakers.co Releases DIVERCITY™, Honoring Five Cities Across Indonesia</h2>
+           <Button variant={"default"} className='mt-8'>Check it Out</Button>
         </div>
-        <div>
-            <Image src="/baner-1.png" alt="img" width={1600} height={1200} className='w-full h-80 object-cover'/>
+         <h1 className='text-[#111] font-bold p-4 text-3xl'>Explore The Sneakers.co Collection</h1>
+        <div className='flex flex-row gap-4 p-4'>
+            <div className='flex flex-col'>
+              <Image src="/nigga.webp" alt='img' width={480} height={480} className='w-[560px] h-auto'/>
+              <h2 className='-mt-24 text-white font-semibold p-2 text-2xl'>Explore The Basketball Category</h2>
+              <Button variant={"secondary"} className='w-40 h-8 text-black ml-3'>Shop</Button>
+            </div>
+            <div className='flex flex-col'>
+               <Image src="/baner-1.png" alt="img" width={480} height={480} className='w-[890px] h-[560px]'/> 
+               <h2 className='-mt-24 text-white font-semibold p-2 text-2xl'>Explore the Lifestyle</h2>
+               <Button variant={"secondary"} className='w-40 h-8 text-black ml-3'>Shop</Button>
+            </div>
         </div>
         </>
     )

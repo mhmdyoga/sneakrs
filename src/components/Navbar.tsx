@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import React, { useEffect, useState } from "react";
 import CustomButton from "./fragment/CustomButton";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,18 +14,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CartProduct from "./fragment/CartProduct";
-
-
+import { useAuth } from "@/context/AuthContext";
+import { jwtDecode } from "jwt-decode";
+import { useToast } from "./ui/use-toast";
+import { Globalapi } from "./utils/GlobalApi";
+import { Button } from "./ui/button";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScroll, setIsScroll] = useState(false);
-  const [isLogin, setIslogin] = useState(false);
-  const [userName, setUserName] = useState();
+  const [isLogin, setIslogin] = useState<boolean>(false);
+  const [userName, setUserName] = useState<string>("");
   const router = useRouter();
-// sticky header
+  const auth = useAuth();
+  const token = auth.token;
+  const { toast } = useToast();
+  const pathName = usePathname();
+
+  // sticky header
   useEffect(() => {
-    getToken();
     const handleScroll = () => {
       if (window.scrollY > 100) {
         setIsScroll(true);
@@ -38,132 +45,228 @@ const Navbar = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-  // get login user
 
-  const getToken = () => {
-   const token = localStorage.getItem("token");
+  const isHome = pathName === "/";
+
+   useEffect(() => {
     if (token) {
-      setIslogin(true)
+      try {
+        const decode: any = jwtDecode(token);
+        setUserName(decode.name || "");
+        setIslogin(true);
+        localStorage.setItem("isLogin", "true"); // hanya simpan boolean
+        localStorage.setItem("name", userName);
+      } catch (err) {
+        console.error("Error decode token", err);
+      }
+    } else {
+      // cek localStorage
+      const savedStatus = localStorage.getItem("isLogin");
+      const savedName = localStorage.getItem("name")
+      if (savedStatus === "true") {
+        setIslogin(true);
+        if(savedName) setUserName(savedName);
+      }
     }
-  }
+  }, [token, userName]);
 
-  const logoutUser = () => {
-    setIslogin(false);
-    localStorage.removeItem("token")
-  }
+  const handleLogout = async () => {
+    try {
+      const response = await Globalapi.LogoutUser();
+      toast({
+        title: "Success",
+        description: response.data.message,
+        variant: "default",
+      });
+
+      // clear state + status
+      localStorage.setItem("isLogin", "false");
+      setIslogin(false);
+      setUserName("");
+
+      router.push("/auth/sign-in");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-    // Suggested code may be subject to span license. Learn more: ~LicenseLog:1810907423.
     <>
       <div
-        className={`md:p-4 p-2 md:mx-0 mx-2 fixed transition-all ease-in-out w-full  z-10 ${
-          isScroll ? "bg-white" : "bg-transparent"
+        className={`md:p-4 p-2 md:mx-0 mx-2 fixed transition-all ease-in-out w-full z-10 ${
+          isScroll || !isHome ? "bg-white" : "bg-transparent"
         }`}
       >
         <div className="container mx-auto flex md:flex-row justify-between items-center">
+          {/* Logo */}
           <Link href="/">
             <h2
               className={`${
-                isScroll ? "text-black" : "text-zinc-200"
+                isScroll || !isHome ? "text-black" : "text-zinc-200"
               } md:text-2xl text-lg font-bold`}
             >
-             <span>Sneakers.co</span>
+              <span>Sneakers.co</span>
             </h2>
           </Link>
-          {/* hamburgerMenu */}
+
+          {/* Right section */}
           <div className="flex flex-row-reverse md:flex-row md:items-center md:space-x-4">
-          <div className="md:hidden ml-40">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="tegray-400 focus:outline-none"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
+            {/* === Mobile Only (xs) : Cart + Hamburger === */}
+            <div className="flex items-center space-x-3 sm:hidden">
+              <CartProduct />
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="text-gray-700 focus:outline-none"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d={
-                    !isOpen ? "M4 6h16M4 12h16M4 18h16" : "M6 18L18 6M6 6l12 12"
-                  }
-                ></path>
-              </svg>
-            </button>
-          </div>
-          <ul
-            className={`md:flex md:items-center md:space-x-6 ${
-              isOpen ? "ml-0" : "ml-[-550px]"
-            } absolute md:relative md:ml-2 ml-0 w-60 h-screen md:h-auto md:w-auto bg-slate-50 md:bg-transparent transition-all ease-in-out left-0 top-full md:top-auto`}
-          >
-            <li>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d={
+                      !isOpen
+                        ? "M4 6h16M4 12h16M4 18h16"
+                        : "M6 18L18 6M6 6l12 12"
+                    }
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            {/* === Mobile Nav Menu (xs) === */}
+            <ul
+              className={`sm:hidden ${
+                isOpen ? "ml-0" : "ml-[-550px]"
+              } absolute md:relative md:ml-2 ml-0 w-60 h-screen md:h-auto md:w-auto bg-slate-50 md:bg-transparent transition-all ease-in-out left-0 top-full md:top-auto`}
+            >
+              <li>
+                <Link href="/shop">
+                  <span
+                    className={`block px-4 py-2 font-semibold ${
+                      isScroll || !isHome
+                        ? "text-black"
+                        : "md:text-zinc-200 text-slate-400"
+                    }`}
+                  >
+                    Shop
+                  </span>
+                </Link>
+              </li>
+
+              {/* Mobile: Avatar/Login */}
+              <li className="flex items-start justify-start px-4 py-2 sm:hidden">
+                {isLogin ? (
+                  <div className="flex flex-row gap-2 justify-center items-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <Avatar>
+                          <AvatarImage src="https://github.com/shadcn.png" />
+                          <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>
+                          <Link href="/profile">Profile</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Button
+                            variant={"destructive"}
+                            className="w-full h-auto"
+                            onClick={handleLogout}
+                          >
+                            Logout
+                          </Button>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <h4
+                      className={`text-sm font-semibold ${
+                        isScroll || !isHome ? `text-black` : `text-[#111]`
+                      }`}
+                    >
+                      {userName}
+                    </h4>
+                  </div>
+                ) : (
+                  <div className="block sm:hidden">
+                    <CustomButton
+                      title="Login"
+                      onClick={() => router.push("/auth/sign-in")}
+                      style="text-white bg-black p-3 rounded-md font-bold"
+                    />
+                  </div>
+                )}
+              </li>
+            </ul>
+
+            {/* === Desktop Only (≥sm) : Shop | Cart | Avatar === */}
+            <div className="hidden sm:flex flex-row gap-4 justify-center items-center">
               <Link href="/shop">
                 <span
-                  className={`block px-4 py-2 ${
-                    isScroll ? "text-black" : "md:text-zinc-200 text-slate-400"
+                  className={`block px-4 py-2 font-semibold ${
+                    isScroll || !isHome ? "text-black" : "text-zinc-200"
                   }`}
                 >
                   Shop
                 </span>
               </Link>
-            </li>
-            <li>
-              <Link href="/about">
-                <span
-                  className={`block px-4 py-2 ${
-                    isScroll ? "text-black" : "md:text-zinc-200  text-slate-400"
-                  }`}
-                >
-                  About
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact">
-                <span
-                  className={`block px-4 py-2 ${
-                    isScroll ? "text-black" : "md:text-zinc-200 text-slate-400"
-                  }`}
-                >
-                  Contact
-                </span>
-              </Link>
-            </li>
-          </ul>
-            <div className="flex flex-row gap-4 justify-center items-center">
-              <CartProduct/>
-              {/* avatar login */}
-              {isLogin ? 
-              <DropdownMenu>
-              <DropdownMenuTrigger>
-              <Avatar>
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link href="/order"> My Order</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <button onClick={logoutUser}>Logout</button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu> 
-            : <div className="hidden md:block">
-            <CustomButton title="Login" onClick={() => router.push('/auth/sign-in')} style="text-white bg-black p-3 rounded-md font-bold" />
-         </div>}
+
+              <CartProduct />
+
+              {isLogin ? (
+                <div className="flex flex-row gap-2 justify-center items-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <Avatar>
+                        <AvatarImage src="https://github.com/shadcn.png" />
+                        <AvatarFallback>CN</AvatarFallback>
+                      </Avatar>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <Link href="/profile">Profile</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Button
+                          variant={"destructive"}
+                          className="w-full h-auto"
+                          onClick={handleLogout}
+                        >
+                          Logout
+                        </Button>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <h4
+                    className={`text-sm font-semibold ${
+                      isScroll || !isHome ? `text-black` : `text-white`
+                    }`}
+                  >
+                    {userName}
+                  </h4>
+                </div>
+              ) : (
+                <CustomButton
+                  title="Login"
+                  onClick={() => router.push("/auth/sign-in")}
+                  style="text-white bg-black p-3 rounded-md font-bold"
+                />
+              )}
             </div>
+          </div>
         </div>
-        </div>
-        </div>
-      </>
+      </div>
+    </>
   );
 };
 

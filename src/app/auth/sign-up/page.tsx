@@ -1,50 +1,51 @@
 "use client"
 import { useToast } from '@/components/ui/use-toast';
-import axios from 'axios';
+import { Globalapi } from '@/components/utils/GlobalApi';
+import { registerSchema, RegisterSchemaType } from '@/components/utils/schema/zodSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState } from 'react'
+import { useRouter } from 'next/navigation';
+import React from 'react'
+import { useForm } from 'react-hook-form';
+import {z} from 'zod';
+
 
 const SignUp = () => {
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const { toast } = useToast();
+    const router = useRouter();
+    const { register, handleSubmit, formState: {errors, isSubmitting} } = useForm<RegisterSchemaType>({
+      resolver: zodResolver(registerSchema),
+      mode: 'onChange'
+    });
   
-
-    const handleSubmit = async (e: any) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post("http://localhost:1337/api/auth/local/register", {
-                username,
-                email,
-                password,
-            });
-            toast({ 
-                title: "Register success",
-                description: "HAPPY SHIPPING!!!"
-            })
-            window.location.href = '/auth/sign-in'
-        } catch (error: any) {
-          if (error.response && 
-            error.response.data && 
-            error.response.data.message && 
-            error.response.data.message[0] && 
-            error.response.data.message[0].messages &&
-            error.response.data.message[0].messages[0] &&
-            error.response.data.message[0].messages[0].id === "Auth.form.error.email.taken") {
-          toast({ variant: "destructive", title: "Email already exists" });
-        } else {
-          let errorMessage = "Register Failed";
-          if (error.response && error.response.data && error.response.data.message) {
-            errorMessage = error.response.data.message; // Or extract a more specific message if possible
-          }
-          toast({ variant: "destructive", title: errorMessage });
-          console.error("Registration error:", error); // Log the error for debugging
+    const onSubmit = async(data: RegisterSchemaType) => {
+      try {
+        const response = await Globalapi.RegisterUser({
+          name: data.name.trim(),
+          email: data.email.trim(),
+          password: data.password.trim()
+        });
+         toast({
+        title: "Success",
+        description: `${response.data?.massage} 🎉`,
+        variant: "default"
+      })
+      console.log(response.data.massage);
+       router.push('/auth/sign-in')
+      } catch (error) {
+        if(error instanceof z.ZodError){
+         toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        })
         }
-        }
-
+        console.log('register error:',error)
+      }
     }
+
+  
   return (
     <div className='p-16 mx-14'>
     <section className="bg-slate-800">
@@ -75,18 +76,18 @@ const SignUp = () => {
         Please register your account for shopping from Sneakers.co
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-8 grid grid-cols-6 gap-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 grid grid-cols-6 gap-6">
         <div className="col-span-6 sm:col-span-3">
           <label htmlFor="username" className="block text-sm font-medium text-slate-400">
-            Username
+            FullName
           </label>
 
           <input
             type="text"
-            value={username}
+            {...register("name")}
             className="mt-1 w-full h-10 rounded-md outline-none border-gray-200 bg-slate-400 text-sm text-gray-700 shadow-xl"
-            onChange={(e) => setUsername(e.target.value)}
           />
+          {errors.name && <p className='text-red-500 text-sm mt-1'>{errors.name.message}</p>}
         </div>
 
         <div className="col-span-6">
@@ -94,10 +95,10 @@ const SignUp = () => {
 
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register("email")}
             className="mt-1 w-full h-10 outline-none  rounded-md border-gray-200 bg-slate-400 text-sm text-gray-700 shadow-xl"
           />
+          {errors.email && <p className='text-red-500 text-sm mt-1'>{errors.email.message}</p>}
         </div>
 
         <div className="col-span-6 sm:col-span-3">
@@ -105,10 +106,10 @@ const SignUp = () => {
 
           <input
             type="password"
-           value={password}
-           onChange={(e) => setPassword(e.target.value)}
+            {...register("password")}
             className="mt-1 w-full h-10 outline-none rounded-md border-gray-200 bg-slate-400 text-sm text-gray-700 shadow-xl"
           />
+          {errors.password && <p className='text-red-500 text-sm mt-1'>{errors.password.message}</p>}
         </div>
 
         <div className="col-span-6">
@@ -123,8 +124,8 @@ const SignUp = () => {
         <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
           <button
           type="submit"
-          disabled={!(username || email || password)}
-            className={`${!(username || email || password) ? 'bg-slate-400 p-4 rounded-md inline-block shrink-0 border border-slate-400 text-gray-300' : 'inline-block shrink-0 rounded-md border border-yellow-600 bg-yellow-600 px-12 py-3 text-sm font-bold text-slate-50 transition hover:bg-transparent hover:text-blue-600 focus:outline-none focus:ring active:text-blue-500'}`}
+          disabled={isSubmitting}
+            className={`${isSubmitting ? 'bg-slate-400 p-4 rounded-md inline-block shrink-0 border border-slate-400 text-gray-300' : 'inline-block shrink-0 rounded-md border border-yellow-600 bg-yellow-600 px-12 py-3 text-sm font-bold text-slate-50 transition hover:bg-transparent hover:text-blue-600 focus:outline-none focus:ring active:text-blue-500'}`}
           >
             Create an account
           </button>

@@ -1,20 +1,41 @@
+"use client"
+import { useAuth } from '@/context/AuthContext';
 import AxiosClient from 'axios';
+import { useMemo } from 'react';
 
 const GlobalApi = AxiosClient.create({
-    baseURL: 'http://localhost:1337/api'
+    baseURL: "http://localhost:6542/api/v1",
 });
-// men get semua data
-const getAllProduct = () => GlobalApi.get('/products?populate=*');
-// get category item
-const getCategoryList = () => GlobalApi.get('/categories?populate=*');
-// postcart
-const postCart = (data: any, token: any) => GlobalApi.post('/carts', data, {headers: {Authorization: `Bearer ${token}`}});
+
+// Api
+  const RegisterUser = (data: any) => GlobalApi.post('/auth/register', data);
+  const LoginUser = (data: any) => GlobalApi.post('/auth/login', data);
+  const LogoutUser = () => GlobalApi.post("/auth/logout")
+  
+  export const useApi = () => {
+  const auth = useAuth();
+  const token = (auth as any)?.token;
+
+  // Gunakan useMemo biar tidak bikin instance baru tiap render
+  const api = useMemo(() => {
+    const instance = GlobalApi;
+    if (token) {
+      instance.defaults.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete instance.defaults.headers.Authorization;
+    }
+    return instance;
+  }, [token]);
+
+  return api;
+};
+
 
 
 export const Globalapi = {
-    getAllProduct,
-    getCategoryList,
-    postCart
+    RegisterUser,
+    LoginUser,
+    LogoutUser
 }
 
 
