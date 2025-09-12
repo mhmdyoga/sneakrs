@@ -33,7 +33,6 @@ const CartProduct = () => {
     0
   );
   const cartMutation = useCreateTx();
-  const kursDollarToIDR = 16373.90;
 
   const handleCheckOut = () => {
     try {
@@ -48,7 +47,7 @@ const CartProduct = () => {
           productId: item.id,
           size: item.size,
           quantity: item.quantity,
-          price: item.price * kursDollarToIDR,
+          price: item.price,
         })),
       };
 
