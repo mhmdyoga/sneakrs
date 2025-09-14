@@ -165,7 +165,7 @@ const Beranda = () => {
            <ScrollArea className='w-96 rounded-md border whitespace-nowrap md:w-full'>
            <div className='flex flex-row gap-4'>
              {data?.map((item: any, index: number) => (
-              <div key={item.id}>
+              <div key={item.id} className='shrink-0'>
                 <div className="flex flex-col gap-2">
                   <Image
                     src={item.imageUrl}
