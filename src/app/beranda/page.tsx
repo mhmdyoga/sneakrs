@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '@/components/utils/GlobalApi';
 import { LoaderCircle } from 'lucide-react';
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import Link from 'next/link';
 //   font goole
   const LeagueGhotic = League_Gothic({
@@ -193,6 +193,7 @@ const Beranda = () => {
               </div>
             ))}
            </div>
+           <ScrollBar orientation="horizontal" className='bg-slate-200'/>
            </ScrollArea>
         </div>
          <h1 className='text-[#111] font-bold p-4 text-3xl'>Explore The Sneakers.co Collection</h1>
