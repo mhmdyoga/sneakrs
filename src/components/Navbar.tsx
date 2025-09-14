@@ -93,7 +93,7 @@ const Navbar = () => {
   return (
     <>
       <div
-        className={`md:p-4 p-2 md:mx-0 mx-2 fixed transition-all ease-in-out w-full z-10 ${
+        className={`md:p-4 p-0 md:mx-0 fixed transition-all ease-in-out w-full z-10 ${
           isScroll || !isHome ? "bg-white" : "bg-transparent"
         }`}
       >
