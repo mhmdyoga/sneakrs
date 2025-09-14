@@ -162,7 +162,7 @@ const Beranda = () => {
         </div>
         <h2 className='text-[#111] font-bold text-3xl p-4'>New Arrival</h2>
         <div className=''>
-           <ScrollArea className='w-[1000px] h-auto px-4 flex flex-row gap-4'>
+           <ScrollArea className='w-full h-[400px] px-4 flex gap-4'>
            {data?.map((item: any, index: number) => (
               <div key={item.id}>
                 <div className="flex flex-col gap-2">
