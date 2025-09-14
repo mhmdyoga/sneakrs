@@ -13,6 +13,11 @@ import { League_Gothic } from 'next/font/google';
 import { MotionDiv } from '@/components/motion/page';
 import CustomButton from '@/components/fragment/CustomButton';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '@/components/utils/GlobalApi';
+import { LoaderCircle } from 'lucide-react';
+import { ScrollArea } from "@/components/ui/scroll-area"
+import Link from 'next/link';
 //   font goole
   const LeagueGhotic = League_Gothic({
     weight: ["400"],
@@ -89,6 +94,17 @@ import { Button } from '@/components/ui/button';
 
 
 const Beranda = () => {
+
+    const api = useApi();
+
+    const { data }  = useQuery({
+        queryKey: ['new-arrival'],
+        queryFn: async () => {
+            const res = await api.get('/product/new/arrvival');
+            return res.data.product;
+        }
+    });
+
     return (
         <>
         <div>
@@ -143,6 +159,39 @@ const Beranda = () => {
            <Image src="/5-sneakers-by-cities-of-indonesia.webp" alt='img' width={480} height={480} className='w-[1480px] h-auto'/>
            <h2 className='font-bold flex justify-start items-start text-black text-center md:text-start text-4xl mt-8'>Sneakers.co Releases DIVERCITY™, Honoring Five Cities Across Indonesia</h2>
            <Button variant={"default"} className='mt-8'>Check it Out</Button>
+        </div>
+        <h2 className='text-[#111] font-bold text-3xl p-4'>New Arrival</h2>
+        <div className=''>
+           <ScrollArea className='w-full h-[500px] px-4'>
+           {data?.map((item: any, index: number) => (
+              <div key={item.id}>
+                <div className="flex flex-col gap-2">
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.title}
+                    width={400}
+                    height={365}
+                    className="w-96 h-auto"
+                  />
+                  <div className="flex flex-col gap-2">
+                    <h3 className="font-semibold text-black text-lg">
+                      {item.title}
+                    </h3>
+                    <h3 className="font-semibold text-black text-xs">
+                      ${item.price}
+                    </h3>
+                  </div>
+                </div>
+                <Link
+                  href={`/products/${item.title}`}
+                  key={index}
+                  className="mt-[15px]"
+                >
+                  <Button variant={"default"}>View Product</Button>
+                </Link>
+              </div>
+            ))}
+           </ScrollArea>
         </div>
          <h1 className='text-[#111] font-bold p-4 text-3xl'>Explore The Sneakers.co Collection</h1>
         <div className='flex md:flex-row flex-col-reverse gap-12 md:gap-4 p-4'>
