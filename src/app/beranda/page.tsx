@@ -161,9 +161,10 @@ const Beranda = () => {
            <Button variant={"default"} className='mt-8'>Check it Out</Button>
         </div>
         <h2 className='text-[#111] font-bold text-3xl p-4'>New Arrival</h2>
-        <div className=''>
-           <ScrollArea className='w-[400px] h-[400px] px-4 flex gap-4'>
-           {data?.map((item: any, index: number) => (
+        <div>
+           <ScrollArea className='w-[400px] h-[400px] px-4'>
+           <div className='flex flex-row gap-4'>
+             {data?.map((item: any, index: number) => (
               <div key={item.id}>
                 <div className="flex flex-col gap-2">
                   <Image
@@ -191,6 +192,7 @@ const Beranda = () => {
                 </Link>
               </div>
             ))}
+           </div>
            </ScrollArea>
         </div>
          <h1 className='text-[#111] font-bold p-4 text-3xl'>Explore The Sneakers.co Collection</h1>
