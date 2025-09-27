@@ -21,7 +21,7 @@ const Shop = () => {
         description: res.data.message,
         variant: "default",
       });
-      return res.data.product;
+      return res.data.products;
     },
     retry: 0, // jangan auto-retry
     refetchOnWindowFocus: false, // jangan refetch tiap ganti tab
