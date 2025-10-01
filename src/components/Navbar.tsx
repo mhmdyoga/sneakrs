@@ -48,25 +48,39 @@ const Navbar = () => {
 
   const isHome = pathName === "/";
 
-   useEffect(() => {
+  useEffect(() => {
   if (token) {
     try {
       const decode: any = jwtDecode(token);
-      setUserName(decode.name || "");
+      const name = decode.name || "";
+
+      setUserName(name);
       setIslogin(true);
-      localStorage.setItem("isLogin", "true"); 
-      localStorage.setItem("name", decode.name || ""); // langsung dari decode
+
+      localStorage.setItem("isLogin", "true");
+      localStorage.setItem("name", name);
     } catch (err) {
       console.error("Error decode token", err);
     }
   } else {
-    // logout → clear storage
-    localStorage.removeItem("isLogin");
-    localStorage.removeItem("name");
+    // ketika logout → update localStorage jadi kosong
+    localStorage.setItem("isLogin", "false");
+    localStorage.setItem("name", "");
     setIslogin(false);
     setUserName("");
   }
 }, [token]);
+
+useEffect(() => {
+  const savedStatus = localStorage.getItem("isLogin");
+  const savedName = localStorage.getItem("name");
+
+  if (savedStatus === "true") {
+    setIslogin(true);
+    setUserName(savedName || "");
+  }
+}, []);
+
 
 
   const handleLogout = async () => {
