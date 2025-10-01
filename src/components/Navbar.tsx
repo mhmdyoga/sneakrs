@@ -49,26 +49,25 @@ const Navbar = () => {
   const isHome = pathName === "/";
 
    useEffect(() => {
-    if (token) {
-      try {
-        const decode: any = jwtDecode(token);
-        setUserName(decode.name || "");
-        setIslogin(true);
-        localStorage.setItem("isLogin", "true"); // hanya simpan boolean
-        localStorage.setItem("name", userName);
-      } catch (err) {
-        console.error("Error decode token", err);
-      }
-    } else {
-      // cek localStorage
-      const savedStatus = localStorage.getItem("isLogin");
-      const savedName = localStorage.getItem("name")
-      if (savedStatus === "true") {
-        setIslogin(true);
-        if(savedName) setUserName(savedName);
-      }
+  if (token) {
+    try {
+      const decode: any = jwtDecode(token);
+      setUserName(decode.name || "");
+      setIslogin(true);
+      localStorage.setItem("isLogin", "true"); 
+      localStorage.setItem("name", decode.name || ""); // langsung dari decode
+    } catch (err) {
+      console.error("Error decode token", err);
     }
-  }, [token, userName]);
+  } else {
+    // logout → clear storage
+    localStorage.removeItem("isLogin");
+    localStorage.removeItem("name");
+    setIslogin(false);
+    setUserName("");
+  }
+}, [token]);
+
 
   const handleLogout = async () => {
     try {
