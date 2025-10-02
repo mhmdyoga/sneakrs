@@ -57,7 +57,7 @@ const Shop = () => {
                       {item.title}
                     </h3>
                     <h3 className="font-semibold text-black text-xs">
-                      ${item.price}
+                      Rp. {item.price}
                     </h3>
                   </div>
                 </div>
