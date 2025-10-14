@@ -4,7 +4,7 @@ import AxiosClient from 'axios';
 import { useMemo } from 'react';
 
 const GlobalApi = AxiosClient.create({
-    baseURL: "https://sneakrs-be-production.up.railway.app/api/v1",
+    baseURL: "https://sneakrs-be-1.vercel.app/api/v1/",
 });
 
 // Api
